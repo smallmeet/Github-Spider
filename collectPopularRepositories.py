@@ -23,13 +23,13 @@ repo_count = 0
 
 def fetch_repos_stars(criteria):
     """
-    Fetches 1000 most starred repository's full name and writes it to the external file
+    Fetches at most 1000 repositories based on the criteria. Fetches full name and writes it to the external file
     (Only the first 1000 search results are available.)
-    Input: Criteria a string indicating on what criteria the repositories should be fetched
+    Input: Criteria is a string which indicates on what criteria the repositories should be fetched
     """
     global repo_count
 
-    # we will make iternations for the first 20 pages with each page consisting of 100 search results
+    # we will make iternations for the first 10 pages with each page consisting of 100 search results
     for page_number in range(1, 11):
         req_url_stars = "https://api.github.com/search/repositories?q="+ criteria+ "%3A%3E0&sort=" +criteria+"&"\
             + "page=" + str(page_number)+ "&per_page=100"+"&format=json"
