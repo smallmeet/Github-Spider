@@ -21,17 +21,19 @@ except:
 repo_count = 0
 # Example hit: https://api.github.com/search/repositories?q=stars%3A%3E0&sort=stars&page=2&per_page=100
 
-def fetch_repos_stars():
+def fetch_repos_stars(criteria):
     """
     Fetches 1000 most starred repository's full name and writes it to the external file
     (Only the first 1000 search results are available.)
+    Input: Criteria a string indicating on what criteria the repositories should be fetched
     """
     global repo_count
 
     # we will make iternations for the first 20 pages with each page consisting of 100 search results
     for page_number in range(1, 11):
-        req_url_stars = "https://api.github.com/search/repositories?q=stars%3A%3E0&sort=stars&"\
+        req_url_stars = "https://api.github.com/search/repositories?q="+ criteria+ "%3A%3E0&sort=" +criteria+"&"\
             + "page=" + str(page_number)+ "&per_page=100"+"&format=json"
+
         connect_timeout = 60.0
 
         try:
@@ -49,8 +51,15 @@ def fetch_repos_stars():
 
         # parse response into a dictioanry
         response_dictionary = json.loads(response.text or response.content)
+        # count of results returned
+        count_results = response_dictionary["total_count"]
+        # we dont want to hit server if the hit is above the max value we can get
+        if page_number >= count_results/100 + 2:
+            print "Exiting so as to not to cross maximum allowed results"
+            return
         # extract array of repositories from the dictionary
         repos_array = response_dictionary["items"]
+
         for repo in repos_array:
             repo_count += 1
             repo_full_name = repo["full_name"]
@@ -58,7 +67,10 @@ def fetch_repos_stars():
             print "Adding repository number " + str(repo_count) + ": " + repo_full_name
 
 
+fetch_repos_stars("size")
+fetch_repos_stars("stars")
+fetch_repos_stars("forks")
+fetch_repos_stars("commits")
 
-fetch_repos_stars()
 fhand.close()
 
